@@ -1,6 +1,39 @@
-// untitled
+// birthday soundscape
+// for mom
 
 (
+s.quit;
+
+~chords = [
+	[],
+	[],
+];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+t = TempoClock.new(120/60).permanent_(false);
+
+
+
+///////////////////////
+///////////////////////
+///////////////////////
+///////////////////////
+///////////////////////
+
 s.waitForBoot({
 	// Load the buffers
 	var path, subfolders;
@@ -19,10 +52,9 @@ s.waitForBoot({
 
 
 	// Busses
-		s.newBusAllocators;
+	s.newBusAllocators;
 	~delBus = Bus.audio(s, 2);
 	~revBus = Bus.audio(s, 2);
-
 
 
 	// SynthDefs
@@ -284,6 +316,7 @@ s.waitForBoot({
 	s.sync;
 
 	Synth(\samp, [\buf, b[[\b, \f].choose][rrand(0,3)], \amp, 0.7, \spos, rrand(0, b[\b][0].numFrames - 1)]);
+
 }, onFailure: {\waitForBootFAILED.postln}
 );
 )
