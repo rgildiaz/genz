@@ -3,6 +3,7 @@
 
 (
 s.quit;
+s.options.memSize = 2**20; // ran into some memory issues while working
 
 ~recordEnable = true;
 
@@ -24,7 +25,6 @@ s.waitForBoot({
 		});
 		b[dir.folderName.asSymbol] = bufArray;
 	});
-
 
 	// Groups
 	~srcGrp = Group.new;
