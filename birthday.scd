@@ -163,18 +163,18 @@ SynthDef.new( \sqPunch, {
 	Out.ar(out, sig);
 }).add;
 
+Synth.new(\noise);
+
 
 SynthDef.new( \noise, {
 	arg freq=200, amp=0.5, pan=0, out=0,
-	atk=5, rel=5;
+	atk=5, rel=5, gate=1,
+	bpffreq=300, rq=5;
 	var sig, env, dust;
 
 	env = EnvGen.ar(
-		Env.new(
-			[0.0001, 1, 0.0001],
-			[atk, rel],
-			['lin', 'exp']
-		),
+		Env.asr(atk, 1, rel),
+		gate: gate,
 		doneAction: 2
 	);
 
@@ -194,13 +194,24 @@ SynthDef.new( \noise, {
 	);
 	dust = BPF.ar(
 		dust,
-		freq*rrand(2,6)
+		freq*rrand(2,6),
+		2,
 	);
 
-	// sig = sig + dust;
+	sig = sig + dust;
 
-	sig = Pan2.ar(sig, pan);
-	sig = sig * amp * env;
+	sig = BPF.ar(sig, bpffreq, rq);
+
+	sig = Splay.ar(sig,rrand(0.1, 0.2), amp, pan);
+
+	// add moving dust
+	sig = sig + {Pan2.ar(
+		in:    Dust.ar(LFNoise1.kr(0.5).range(20,80)),
+		pos:   LFNoise1.kr(3).range(-0.8, 0.8),
+		level: LFNoise1.kr(2).range(0.03, 0.1)
+	)/5}!5;
+
+	sig = sig * env;
 
 
 	Out.ar(out, sig);
@@ -338,9 +349,9 @@ Synth.new(\sqPunch);
 Synth.new(\choruSin);
 Synth.new(\noise);
 (
-Synth.new(\shimmer, [\freq, 800]);
-Synth.new(\shimmer, [\freq, 600]);
-Synth.new(\shimmer, [\freq, 640]);
+Synth.new(\shimmer, [\freq, 1600]);
+Synth.new(\shimmer, [\freq, 1200]);
+Synth.new(\shimmer, [\freq, 1000]);
 )
 (
 t = TempoClock.new(120/60).permanent_(false);
@@ -377,11 +388,11 @@ r = Routine.new({
 				k = k + 80;
 				k = k.midicps;
 				Synth.new(\choruSin, [
-				\freq, k,
-				\rel, rrand(5,10),
-				\atk, rrand(5,10),
-				\pan, rrand(-0.2, 0.2)
-			]);
+					\freq, k,
+					\rel, rrand(5,10),
+					\atk, rrand(5,10),
+					\pan, rrand(-0.2, 0.2)
+				]);
 			});
 
 			20.yield;
