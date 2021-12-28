@@ -33,9 +33,6 @@ s.waitForBoot({
 	~delBus = Bus.audio(s, 2);
 	~revBus = Bus.audio(s, 2);
 
-
-
-
 	////////////////////////////////
 
 	///////////////////////////////
@@ -45,8 +42,6 @@ s.waitForBoot({
 	// SynthDefs //////////////////
 
 	////////////////////////////////
-
-
 
 	SynthDef.new( \samp, {
 		arg buf=0, rate=1, spos=0, loop=0,
@@ -141,6 +136,8 @@ s.waitForBoot({
 		bpffreq=300, rq=5, crcklrt=0.5;
 		var sig, env, dust;
 
+		amp = amp/3;
+
 		env = EnvGen.ar(
 			Env.asr(atk, 1, rel),
 			gate: gate,
@@ -181,7 +178,6 @@ s.waitForBoot({
 		)/5}!5;
 
 		sig = sig * env;
-
 
 		Out.ar(out, sig);
 	}).add;
@@ -302,7 +298,7 @@ s.waitForBoot({
 
 	SynthDef.new( \reverb, {
 		arg in=~revBus, out=0, amp=1,
-		mix=0.33, room=0.5, damp=0.5;
+		mix=0.5, room=0.9, damp=0.5;
 		var sig;
 
 		sig = In.ar(in, 2);
@@ -313,7 +309,7 @@ s.waitForBoot({
 
 	s.sync;
 
-	Synth(\reverb, [\in, ~revBus, \out, 0]);
+	Synth(\reverb, [\in, ~revBus, \out, 0], ~fxGrp);
 
 	s.sync;
 
@@ -346,13 +342,9 @@ s.waitForBoot({
 
 		~root = rrand(45, 50);
 		~ampScale = linrand(0.25, 1);
+		"AmpScale: %".format(~ampScale).postln;
 	};
 	~changeTonality.value();
-
-
-	~closeGates = {
-		~noise.set(\gate, 0);
-	};
 
 	s.sync;
 
@@ -371,6 +363,7 @@ s.waitForBoot({
 	// player
 	p = Routine.new({
 		var currentChord = ~chordPool[0];
+		var func = {};
 
 		// choose if noise will play
 		if (
@@ -378,65 +371,147 @@ s.waitForBoot({
 			{
 				"Noise".postln;
 				~noise = Synth.new( \noise, [
+					\atk,		rrand(3, 5),
+					\rel,		rrand(5, 10),
 					\freq, 	rrand(150, 250),
-					\amp, 	rrand(0.02, 0.05),
+					\amp, 	rrand(0.01, 0.05) * ~ampScale,
 					\crcklrt,	rrand(0.0, 1.0),
-					\gate,	1,
-				]);
+					\gate,	1
+				]).register;
 			},
-			{ "no noise".postln; }
+			{
+				if (
+					~noise.isPlaying,
+					{ ~noise.set(\gate, 0) }
+				);
+				"no noise".postln;
+			}
 		);
 
-		inf.do({
-			// 1/5 chance to change current chord
-			if ( rrand(0, 4) == 0,
-				{
-					currentChord = ~chordPool.choose;
-				},
-			);
-
-			3.do({
-				if ( rrand(0, 1) == 0,
+		// 1/2 chance between variations
+		switch ( rrand(0,1) )
+		{0} {
+			"func0".postln;
+			func = {
+				// 1/5 chance to change current chord
+				if ( rrand(0, 4) == 0,
 					{
-						Synth.new( \choruSin, [
-							\freq, 	(~root + currentChord.choose).midicps,
-							\amp,		rrand(0.02, 0.1)
-						]);
-					},
-				);
-			});
-
-			3.do({
-				if ( rrand(0, 1) == 0,
-					{
-						Synth.new( \shimmer, [
-							\freq, 	(~root + 12 + currentChord.choose).midicps,
-							\amp,		rrand(0.05, 0.2)
-						]);
+						currentChord = ~chordPool.choose;
 					},
 				);
 
-				if ( rrand(0, 5) == 0,
+				3.do({
+					if ( rrand(0, 1) == 0,
+						{
+							Synth.new( \choruSin, [
+								\freq, 	(~root + currentChord.choose).midicps,
+								\amp,		rrand(0.02, 0.1) * ~ampScale,
+								\atk,		rrand(2, 5),
+								\rel,		rrand(5, 10)
+							]);
+						},
+					);
+				});
+
+				3.do({
+					if ( rrand(0, 1) == 0,
+						{
+							Synth.new( \shimmer, [
+								\freq, 	(~root + 12 + currentChord.choose).midicps,
+								\amp,		rrand(0.05, 0.2) * ~ampScale,
+								\atk,		rrand(2, 5),
+								\rel,		rrand(5, 10)
+							]);
+						},
+					);
+
+					if ( rrand(0, 5) == 0,
+						{
+							Synth.new( \shimmer, [
+								\freq, 	(~root + 24 + currentChord.choose).midicps,
+								\amp,		rrand(0.05, 0.2) * ~ampScale,
+								\atk,		rrand(5, 7),
+								\rel,		rrand(5, 10)
+							]);
+						},
+					)
+				});
+
+				if ( rrand(0, 1) == 0,
 					{
-						Synth.new( \shimmer, [
-							\freq, 	(~root + 24 + currentChord.choose).midicps,
-							\amp,		rrand(0.05, 0.2)
+						Synth.new( \sqPunch, [
+							\freq, 	(~root - 12 + currentChord.choose).midicps,
+							\amp,		rrand(0.02, 0.1) * ~ampScale,
+							\rel,		rrand(5, 10)
 						]);
 					},
-				)
-			});
+				);
 
-			if ( rrand(0, 1) == 0,
-				{
-					Synth.new( \sqPunch, [
-						\freq, 	(~root - 12 + currentChord.choose).midicps,
-						\amp,		rrand(0.02, 0.1)
-					]);
-				},
-			);
+				rrand(1,5).yield;
+			}
+		}
+		{1} {
+			"func1".postln;
+			func = {
+				// 1/9 chance to change current chord
+				if ( rrand(0, 8) == 0,
+					{
+						currentChord = ~chordPool.choose;
+					},
+				);
 
-			rrand(1,5).yield;
-		});
+				6.do({
+					if ( rrand(0, 1) == 0,
+						{
+							Synth.new( \choruSin, [
+								\freq, 	(~root + currentChord.choose).midicps,
+								\amp,		rrand(0.02, 0.1) * ~ampScale,
+								\atk,		rrand(2, 5),
+								\rel,		rrand(5, 10)
+							]);
+						},
+					);
+				});
+
+				1.do({
+					if ( rrand(0, 4) == 0,
+						{
+							Synth.new( \shimmer, [
+								\freq, 	(~root + 12 + currentChord.choose).midicps,
+								\amp,		rrand(0.05, 0.2) * ~ampScale,
+								\atk,		rrand(2, 5),
+								\rel,		rrand(5, 10)
+							]);
+						},
+					);
+
+					if ( rrand(0, 5) == 0,
+						{
+							Synth.new( \shimmer, [
+								\freq, 	(~root + 24 + currentChord.choose).midicps,
+								\amp,		rrand(0.05, 0.2) * ~ampScale,
+								\atk,		rrand(5, 7),
+								\rel,		rrand(5, 10)
+							]);
+						},
+					)
+				});
+
+				if ( rrand(0, 1) == 0,
+					{
+						Synth.new( \sqPunch, [
+							\freq, 	(~root - 12 + currentChord.choose).midicps,
+							\amp,		rrand(0.02, 0.1) * ~ampScale,
+							\rel,		rrand(5, 10)
+						]);
+					},
+				);
+
+				rrand(1,5).yield;
+			}
+		};
+
+		inf.do(func);
 	});
 
 	// folley
@@ -450,9 +525,13 @@ s.waitForBoot({
 				inf.do({
 
 					Synth.new( \samp, [
-						\buf, b[soundSet][rrand(0, b[soundSet].size-1)],
-						\amp, rrand(0.01, 0.1),
-						\spos, rrand(0, b[soundSet][0].numFrames - 1)
+						\buf, 	b[soundSet][rrand(0, b[soundSet].size-1)],
+						\amp, 	rrand(0.01, 0.1) * ~ampScale,
+						\sus,		rrand(0.1, 0.4),
+						\rel,		rrand(0.1, 0.3),
+						\spos, 	rrand(0, b[soundSet][0].numFrames - 1),
+						\out,		[0, ~revBus].choose,
+						\pan,		rrand(-1, 1),
 					]);
 
 					rrand(0.0, 6).yield;
@@ -468,7 +547,8 @@ s.waitForBoot({
 
 		"start".postln;
 
-		rrand(10,20).do({
+		rrand(10,20).postln.do({
+			|i|
 			"Iteration: %".format(i).postln;
 			~chordPool = [];
 
@@ -489,7 +569,6 @@ s.waitForBoot({
 
 		"end".postln;
 	}).play(t);
-
 
 }, onFailure: { \waitForBootFAILED.postln }
 );
