@@ -4,37 +4,10 @@
 (
 s.quit;
 
-~chords = [
-	[],
-	[],
-];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-t = TempoClock.new(120/60).permanent_(false);
-
-
-
-///////////////////////
-///////////////////////
-///////////////////////
-///////////////////////
-///////////////////////
+t = TempoClock.new(60/60).permanent_(false);
 
 s.waitForBoot({
+
 	// Load the buffers
 	var path, subfolders;
 	b = ();
@@ -51,13 +24,30 @@ s.waitForBoot({
 	});
 
 
+	// Groups
+	~srcGrp = Group.new;
+	~fxGrp  = Group.new(~srcGrp, 'addAfter');
+
 	// Busses
 	s.newBusAllocators;
 	~delBus = Bus.audio(s, 2);
 	~revBus = Bus.audio(s, 2);
 
 
-	// SynthDefs
+
+
+	////////////////////////////////
+
+	///////////////////////////////
+
+	////////////////////////////////
+
+	// SynthDefs //////////////////
+
+	////////////////////////////////
+
+
+
 	SynthDef.new( \samp, {
 		arg buf=0, rate=1, spos=0, loop=0,
 		atk=0, sus=0.2, rel=0.2,
@@ -145,18 +135,15 @@ s.waitForBoot({
 		Out.ar(out, sig);
 	}).add;
 
-
 	SynthDef.new( \noise, {
 		arg freq=200, amp=0.5, pan=0, out=0,
-		atk=5, rel=5;
+		atk=10, rel=10, gate=1,
+		bpffreq=300, rq=5, crcklrt=0.5;
 		var sig, env, dust;
 
 		env = EnvGen.ar(
-			Env.new(
-				[0.0001, 1, 0.0001],
-				[atk, rel],
-				['lin', 'exp']
-			),
+			Env.asr(atk, 1, rel),
+			gate: gate,
 			doneAction: 2
 		);
 
@@ -176,13 +163,24 @@ s.waitForBoot({
 		);
 		dust = BPF.ar(
 			dust,
-			freq*rrand(2,6)
+			freq*rrand(2,6),
+			2,
 		);
 
-		// sig = sig + dust;
+		sig = sig + dust;
 
-		sig = Pan2.ar(sig, pan);
-		sig = sig * amp * env;
+		sig = BPF.ar(sig, bpffreq, rq);
+
+		sig = Splay.ar(sig,rrand(0.1, 0.2), amp, pan);
+
+		// add moving dust
+		sig = sig*(1/crcklrt) + {Pan2.ar(
+			in:    Dust.ar(LFNoise1.kr(0.5).range(20,80)),
+			pos:   LFNoise1.kr(3).range(-0.8, 0.8),
+			level: LFNoise1.kr(2).range(0.03, 0.1)*crcklrt
+		)/5}!5;
+
+		sig = sig * env;
 
 
 		Out.ar(out, sig);
@@ -315,9 +313,184 @@ s.waitForBoot({
 
 	s.sync;
 
-	Synth(\samp, [\buf, b[[\b, \f].choose][rrand(0,3)], \amp, 0.7, \spos, rrand(0, b[\b][0].numFrames - 1)]);
+	Synth(\reverb, [\in, ~revBus, \out, 0]);
 
-}, onFailure: {\waitForBootFAILED.postln}
+	s.sync;
+
+
+
+	////////////////////////////////
+
+	///////////////////////////////
+
+	////////////////////////////////
+
+	// Funcs //////////////////////
+
+	////////////////////////////////
+
+
+
+	// Define possible chords
+	~changeTonality = {
+		var baseCh = Array.rand(5, -5.0, 12).sort.postln;
+		~chords = [
+			baseCh.floor(),
+			baseCh.round(),
+			baseCh.ceil(),
+			baseCh.nearestInScale(Scale.choose.degrees),
+			baseCh.nearestInScale(Scale.choose.degrees),
+			baseCh.nearestInScale(Scale.choose.degrees),
+		];
+		Pdefn(\chords, ~chords);
+
+		~root = rrand(45, 50);
+		~ampScale = linrand(0.25, 1);
+	};
+	~changeTonality.value();
+
+
+	~closeGates = {
+		~noise.set(\gate, 0);
+	};
+
+	s.sync;
+
+
+
+	////////////////////////////////
+
+	///////////////////////////////
+
+	////////////////////////////////
+
+	// Routines ///////////////////
+
+	////////////////////////////////
+
+	// player
+	p = Routine.new({
+		var currentChord = ~chordPool[0];
+
+		// choose if noise will play
+		if (
+			[true, false].choose,
+			{
+				"Noise".postln;
+				~noise = Synth.new( \noise, [
+					\freq, 	rrand(150, 250),
+					\amp, 	rrand(0.02, 0.05),
+					\crcklrt,	rrand(0.0, 1.0),
+					\gate,	1,
+				]);
+			},
+			{ "no noise".postln; }
+		);
+
+		inf.do({
+			// 1/5 chance to change current chord
+			if ( rrand(0, 4) == 0,
+				{
+					currentChord = ~chordPool.choose;
+				},
+			);
+
+			3.do({
+				if ( rrand(0, 1) == 0,
+					{
+						Synth.new( \choruSin, [
+							\freq, 	(~root + currentChord.choose).midicps,
+							\amp,		rrand(0.02, 0.1)
+						]);
+					},
+				);
+			});
+
+			3.do({
+				if ( rrand(0, 1) == 0,
+					{
+						Synth.new( \shimmer, [
+							\freq, 	(~root + 12 + currentChord.choose).midicps,
+							\amp,		rrand(0.05, 0.2)
+						]);
+					},
+				);
+
+				if ( rrand(0, 5) == 0,
+					{
+						Synth.new( \shimmer, [
+							\freq, 	(~root + 24 + currentChord.choose).midicps,
+							\amp,		rrand(0.05, 0.2)
+						]);
+					},
+				)
+			});
+
+			if ( rrand(0, 1) == 0,
+				{
+					Synth.new( \sqPunch, [
+						\freq, 	(~root - 12 + currentChord.choose).midicps,
+						\amp,		rrand(0.02, 0.1)
+					]);
+				},
+			);
+
+			rrand(1,5).yield;
+		});
+	});
+
+	// folley
+	n = Routine.new({
+		var soundSet = [\b, \f].choose;
+
+		if (
+			[false, true].choose,
+			{
+				"Sampling".postln;
+				inf.do({
+
+					Synth.new( \samp, [
+						\buf, b[soundSet][rrand(0, b[soundSet].size-1)],
+						\amp, rrand(0.01, 0.1),
+						\spos, rrand(0, b[soundSet][0].numFrames - 1)
+					]);
+
+					rrand(0.0, 6).yield;
+				});
+			},
+			{ "Not Sampling".postln; }
+		);
+	});
+
+	// wrapper
+	r = Routine.new({
+		var climax = true;
+
+		"start".postln;
+
+		rrand(10,20).do({
+			"Iteration: %".format(i).postln;
+			~chordPool = [];
+
+			// add at least 2 random chords to the chord pool and make sure they aren't duplicates
+			rrand(2, ~chords.size-1).do({
+				~chordPool.add(~chords.removeAt(rrand(0,~chords.size-1)));
+			});
+
+			s.sync;
+
+			p.play(t);
+			n.play(t);
+			rrand(60, 120).yield;
+			~changeTonality.value();
+			p.reset;
+			n.reset;
+		});
+
+		"end".postln;
+	}).play(t);
+
+
+}, onFailure: { \waitForBootFAILED.postln }
 );
 )
-
