@@ -22,6 +22,12 @@ subfolders.do({
 });
 )
 
+b[\b][0].play;
+b[\b][0].numFrames;
+
+Synth(\samp, [\buf, b[[\b, \f].choose][rrand(0,3)], \amp, 0.7, \spos, rrand(0, b[\b][0].numFrames - 1)]);
+
+
 
 
 (
@@ -32,7 +38,7 @@ subfolders.do({
 	[7,7,2,4,4,4,2,0,7,0,0],
 ];
 
-
+// Options for possible chords
 ~chords = [
 	[
 		[1, 9, 7, 1],
@@ -67,8 +73,33 @@ c = [
 
 (
 s.newBusAllocators;
-~delBus = Bus.new();
-~revBus = Bus.new();
+~delBus = Bus.audio(s, 2);
+~revBus = Bus.audio(s, 2);
+
+SynthDef.new( \samp, {
+	arg buf=0, rate=1, spos=0, loop=0,
+	atk=0, sus=0.2, rel=0.2,
+	lp=20000, hp=20, pan=0, amp=1, out=0;
+	var sig, env;
+
+	sig = PlayBuf.ar(
+		1, buf, BufRateScale.ir(buf) * rate,
+		startPos: spos, loop: loop
+	);
+
+	sig = LPF.ar(sig, lp);
+	sig = HPF.ar(sig, hp);
+
+	env = EnvGen.ar(
+		Env.new([0,1,1,0],[atk,sus,rel],[1,0,-1]),
+		doneAction:2
+	);
+
+	sig = sig * env;
+	sig = Pan2.ar(sig, pan, amp);
+
+	Out.ar(out, sig);
+}).add;
 
 SynthDef.new( \sqPunch, {
 	arg freq=50, amp=0.5, pan=0, out=0,
@@ -252,7 +283,7 @@ SynthDef.new( \shimmer, {
 
 	fmamt 	= EnvGen.ar(
 		Env.new(
-			[0.001, rrand(0.01, 0.02), 0.001],
+			[0.001, rrand(0.005, 0.015), 0.001],
 			[atk, rel],
 			'exp'
 		),
