@@ -4,6 +4,8 @@
 (
 s.quit;
 
+~recordEnable = true;
+
 t = TempoClock.new(60/60).permanent_(false);
 
 s.waitForBoot({
@@ -405,7 +407,7 @@ s.waitForBoot({
 						{
 							Synth.new( \choruSin, [
 								\freq, 	(~root + currentChord.choose).midicps,
-								\amp,		rrand(0.02, 0.1) * ~ampScale,
+								\amp,		rrand(0.02, 0.2) * ~ampScale,
 								\atk,		rrand(2, 5),
 								\rel,		rrand(5, 10)
 							]);
@@ -418,7 +420,7 @@ s.waitForBoot({
 						{
 							Synth.new( \shimmer, [
 								\freq, 	(~root + 12 + currentChord.choose).midicps,
-								\amp,		rrand(0.05, 0.2) * ~ampScale,
+								\amp,		rrand(0.05, 0.3) * ~ampScale,
 								\atk,		rrand(2, 5),
 								\rel,		rrand(5, 10)
 							]);
@@ -429,7 +431,7 @@ s.waitForBoot({
 						{
 							Synth.new( \shimmer, [
 								\freq, 	(~root + 24 + currentChord.choose).midicps,
-								\amp,		rrand(0.05, 0.2) * ~ampScale,
+								\amp,		rrand(0.05, 0.3) * ~ampScale,
 								\atk,		rrand(5, 7),
 								\rel,		rrand(5, 10)
 							]);
@@ -441,7 +443,7 @@ s.waitForBoot({
 					{
 						Synth.new( \sqPunch, [
 							\freq, 	(~root - 12 + currentChord.choose).midicps,
-							\amp,		rrand(0.02, 0.1) * ~ampScale,
+							\amp,		rrand(0.02, 0.5) * ~ampScale,
 							\rel,		rrand(5, 10)
 						]);
 					},
@@ -465,7 +467,7 @@ s.waitForBoot({
 						{
 							Synth.new( \choruSin, [
 								\freq, 	(~root + currentChord.choose).midicps,
-								\amp,		rrand(0.02, 0.1) * ~ampScale,
+								\amp,		rrand(0.02, 0.3) * ~ampScale,
 								\atk,		rrand(2, 5),
 								\rel,		rrand(5, 10)
 							]);
@@ -489,7 +491,7 @@ s.waitForBoot({
 						{
 							Synth.new( \shimmer, [
 								\freq, 	(~root + 24 + currentChord.choose).midicps,
-								\amp,		rrand(0.05, 0.2) * ~ampScale,
+								\amp,		rrand(0.05, 0.4) * ~ampScale,
 								\atk,		rrand(5, 7),
 								\rel,		rrand(5, 10)
 							]);
@@ -500,8 +502,8 @@ s.waitForBoot({
 				if ( rrand(0, 1) == 0,
 					{
 						Synth.new( \sqPunch, [
-							\freq, 	(~root - 12 + currentChord.choose).midicps,
-							\amp,		rrand(0.02, 0.1) * ~ampScale,
+							\freq, 	(~root + currentChord.choose).midicps,
+							\amp,		rrand(0.02, 0.3) * ~ampScale,
 							\rel,		rrand(5, 10)
 						]);
 					},
@@ -526,7 +528,7 @@ s.waitForBoot({
 
 					Synth.new( \samp, [
 						\buf, 	b[soundSet][rrand(0, b[soundSet].size-1)],
-						\amp, 	rrand(0.01, 0.1) * ~ampScale,
+						\amp, 	rrand(0.01, 0.5) * ~ampScale,
 						\sus,		rrand(0.1, 0.4),
 						\rel,		rrand(0.1, 0.3),
 						\spos, 	rrand(0, b[soundSet][0].numFrames - 1),
@@ -544,8 +546,29 @@ s.waitForBoot({
 	// wrapper
 	r = Routine.new({
 		var climax = true;
+		var pathFound = false;
+		var pathNum = 0;
+		var path = PathName(thisProcess.nowExecutingPath).parentPath;
 
 		"start".postln;
+
+		// Find valid path if record enabled
+		if ( ~recordEnable,
+			{
+				while(
+					{ pathFound == false },
+					{
+						if ( File.exists(path ++ "brth_%.wav".format(pathNum)),
+							{ pathNum = pathNum + 1; },
+							{ pathFound = true; }
+						);
+					}
+				);
+				s.record(path ++ "brth_%.wav".format(pathNum), numChannels: 2)
+			}
+		);
+
+		s.sync;
 
 		rrand(10,20).postln.do({
 			|i|
@@ -568,6 +591,7 @@ s.waitForBoot({
 		});
 
 		"end".postln;
+		s.stopRecording();
 	}).play(t);
 
 }, onFailure: { \waitForBootFAILED.postln }
