@@ -1,11 +1,8 @@
-// birthday soundscape
-// for mom
-
 (
 s.quit;
 s.options.memSize = 2**20; // ran into some memory issues while working
 
-~recordEnable = true;
+~recordEnable = false;
 
 t = TempoClock.new(60/60).permanent_(false);
 
@@ -71,7 +68,8 @@ s.waitForBoot({
 		Out.ar(out, sig);
 	}).add;
 
-	SynthDef.new( \sqPunch, {
+	// Unused, but interesting sound
+	/*SynthDef.new( \sqPunch, {
 		arg freq=50, amp=0.5, pan=0, out=0,
 		atk=0.1, rel=5,
 		width=0.5;
@@ -131,7 +129,7 @@ s.waitForBoot({
 		sig = Pan2.ar(sig, pan, amp);
 
 		Out.ar(out, sig);
-	}).add;
+	}).add;*/
 
 	SynthDef.new( \noise, {
 		arg freq=200, amp=0.5, pan=0, out=0,
@@ -201,21 +199,24 @@ s.waitForBoot({
 
 		sig = {
 			SinOsc.ar(
-				{freq*rrand(0.975,1.025)}!10,
+				{freq*rrand(0.975,1.025)}!8,
 				mul: 1/5
 			)
 		};
 
 		dust = Crackle.ar(
-			{LFNoise1.kr(0.2).range(1.0, 1.9)}!5,
+			{LFNoise1.kr(0.2).range(1.0, 1.9)}!3,
 			0.04
 		);
-		dust = BPF.ar(
+		dust = LPF.ar(
 			dust,
 			freq*rrand(2,6)
 		);
 
-		// sig = sig + dust;
+		if (
+			rrand(0,5) == 0,
+			{sig = sig + dust}
+		);
 
 		sig = Splay.ar(sig, rrand(0.1, 0.3), center: pan);
 		sig = sig * amp * env;
@@ -400,7 +401,7 @@ s.waitForBoot({
 					},
 				);*/
 
-				2.do({
+				4.do({
 					if ( rrand(0, 2) == 0,
 						{
 							Synth.new( \choruSin, [
@@ -414,7 +415,7 @@ s.waitForBoot({
 					);
 				});
 
-				2.do({
+				5.do({
 					if ( rrand(0, 3) == 0,
 						{
 							Synth.new( \shimmer, [
@@ -449,7 +450,7 @@ s.waitForBoot({
 
 				if ( rrand(0, 1) == 0,
 					{
-						Synth.new( \sqPunch, [
+						Synth.new( \choruSin, [
 							\freq, 	(~root - 12 + currentChord.choose).midicps,
 							\amp,		rrand(0.02, 0.5) * ~ampScale,
 							\rel,		rrand(5, 10)
@@ -525,7 +526,7 @@ s.waitForBoot({
 
 				if ( rrand(0, 1) == 0,
 					{
-						Synth.new( \sqPunch, [
+						Synth.new( \choruSin, [
 							\freq, 	(~root + currentChord.choose).midicps,
 							\amp,		rrand(0.02, 0.3) * ~ampScale,
 							\rel,		rrand(5, 10)
@@ -582,19 +583,19 @@ s.waitForBoot({
 				while(
 					{ pathFound == false },
 					{
-						if ( File.exists(path ++ "brth_%.wav".format(pathNum)),
+						if ( File.exists(path ++ "genesis_%.wav".format(pathNum)),
 							{ pathNum = pathNum + 1; },
 							{ pathFound = true; }
 						);
 					}
 				);
-				s.record(path ++ "brth_%.wav".format(pathNum), numChannels: 2)
+				s.record(path ++ "genesis_%.wav".format(pathNum), numChannels: 2)
 			}
 		);
 
 		s.sync;
 
-		rrand(5,10).postln.do({
+		rrand(5,7).postln.do({
 			|i|
 			"Iteration: %".format(i).postln;
 			~chordPool = [];
@@ -619,10 +620,18 @@ s.waitForBoot({
 
 		"end".postln;
 
-		10.yield;
-		s.stopRecording();
+		// wait for tails
+		if ( ~recordEnable,
+			{
+				// better way to do this?
+				10.yield;
+				s.stopRecording();
+			}
+		)
 	}).play(t);
 
 }, onFailure: { \waitForBootFAILED.postln }
 );
 )
+
+LevelIndicator.value;
