@@ -1,15 +1,16 @@
 // init
+
 (
-"settings.scd".loadRelative;
-"synthdefs.scd".loadRelative;
-"functions".loadRelative;
-"buffers.scd".loadRelative;
-
-s.sync;
-
-"patterns.scd".loadRelative;
-
 s.waitForBoot({
+	"settings.scd".loadRelative;
+	"synthdefs.scd".loadRelative;
+	"functions.scd".loadRelative;
+	"buffers.scd".loadRelative;
+
+	s.sync;
+
+	"patterns.scd".loadRelative;
+
 	~makeBuffers.value();
 
 	s.sync;
@@ -23,6 +24,5 @@ s.waitForBoot({
 		~recordEnd.value();
 
 	}).play(t);
-}, onFailure: "waitForBootFAILED".throw;
-);
+});
 )

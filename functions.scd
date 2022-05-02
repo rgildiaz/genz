@@ -7,7 +7,7 @@
 ~play = {
 	~tempoStart.value();
 
-	s[\total_section_count].do({ |i|
+	~total_section_count.do({ |i|
 		"\nSection Number: %".format(i).postln;
 
 		p.play(t);
@@ -46,8 +46,7 @@
 * ~record_enable enables and disables this function.
 */
 ~recordStart = {
-	// Find valid path if record enabled
-	if ( s[\record_enable],
+	if ( ~record_enable,
 		{
 			var pathFound = false;
 			var pathNum = 0;
@@ -55,13 +54,13 @@
 
 			while( pathFound == false,
 				{
-					if ( File.exists(path ++ "%_%.wav".format(s[\record_name], pathNum)),
+					if ( File.exists(path ++ "%_%.wav".format(~record_name, pathNum)),
 						{ pathNum = pathNum + 1; },
 						{ pathFound = true; }
 					);
 				}
 			);
-			s.record(path ++ "%_%.wav".format(s[\record_name], pathNum), numChannels: 2)
+			s.record(path ++ "%_%.wav".format(~record_name, pathNum), numChannels: 2)
 		}
 	);
 };
@@ -71,11 +70,30 @@
 * ~record_enable enables and disables this function.
 */
 ~recordEnd = {
-	if ( s[\record_enable],
+	if ( ~record_enable,
 		{
 			10.yield;
 			s.stopRecording();
 		}
 	)
 };
+
+~tempoStart = {
+	t = TempoClock.new(60/60).permanent_(false);
+};
+
+~changeTonality = {
+	var baseCh = Array.rand(5, -5.0, 12).sort.postln;
+	~chords = [
+		baseCh.nearestInScale(Scale.choose.degrees),
+		baseCh.nearestInScale(Scale.choose.degrees),
+		baseCh.nearestInScale(Scale.choose.degrees),
+	];
+	Pdefn(\chords, ~chords);
+
+	~root = rrand(45, 50);
+	~ampScale = rrand(0.25, 1);
+	"AmpScale: %".format(~ampScale).postln;
+};
+~changeTonality.value();
 )

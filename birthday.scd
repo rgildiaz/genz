@@ -316,9 +316,6 @@ s.waitForBoot({
 	~changeTonality = {
 		var baseCh = Array.rand(5, -5.0, 12).sort.postln;
 		~chords = [
-/*			baseCh.floor(),
-			baseCh.round(),
-			baseCh.ceil(),*/
 			baseCh.nearestInScale(Scale.choose.degrees),
 			baseCh.nearestInScale(Scale.choose.degrees),
 			baseCh.nearestInScale(Scale.choose.degrees),
