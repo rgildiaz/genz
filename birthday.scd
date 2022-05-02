@@ -8,21 +8,6 @@ t = TempoClock.new(60/60).permanent_(false);
 
 s.waitForBoot({
 
-	// Load the buffers
-	var path, subfolders;
-	b = ();
-	path = PathName(thisProcess.nowExecutingPath).parentPath;
-	subfolders = PathName(path ++ "audio/").entries;
-	subfolders.do({
-		arg dir;
-		var bufArray;
-		bufArray = dir.entries.collect({
-			arg file;
-			Buffer.readChannel(s, file.fullPath, channels:[0])
-		});
-		b[dir.folderName.asSymbol] = bufArray;
-	});
-
 /*
 	// Groups
 	~srcGrp = Group.new;
