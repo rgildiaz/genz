@@ -8,7 +8,7 @@
 	~tempoStart.value();
 
 	~total_section_count.do({ |i|
-		"\nSection Number: %".format(i).postln;
+		"\n-----\nSection Number: %".format(i).postln;
 
 		p.play(t);
 		n.play(t);

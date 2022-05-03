@@ -6,10 +6,11 @@ s.waitForBoot({
 	"synthdefs.scd".loadRelative;
 	"functions.scd".loadRelative;
 	"buffers.scd".loadRelative;
+	"patterns.scd".loadRelative;
 
 	s.sync;
 
-	"patterns.scd".loadRelative;
+	"scenes.scd".loadRelative;
 
 	~makeBuffers.value();
 
