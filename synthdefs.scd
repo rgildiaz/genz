@@ -1,6 +1,43 @@
 // synthdefs
 
+
+
 (
+SynthDef.new( \sin, {
+	var sig, env,
+	atk, rel, freq, pan, amp;
+
+	atk = \atk.kr(0.01);
+	rel = \rel.kr(0.5);
+	freq = \freq.kr(440);
+	pan = \pan.kr(0);
+	amp = \amp.kr(0.5);
+
+	env = EnvGen.ar(Env.perc(atk, rel), doneAction: 2);
+	sig = SinOsc.ar(freq);
+	sig = Pan2.ar(sig, pan, amp*env);
+
+	Out.ar(0, sig);
+}).add;
+
+SynthDef.new( \playBuf, {
+	var sig, env,
+	atk, rel, rate, pan, amp, buf;
+
+	atk = \atk.kr(0.01);
+	rel = \rel.kr(0.5);
+	rate = \rate.kr(1);
+	pan = \pan.kr(0);
+	amp = \amp.kr(0.5);
+	buf = \buf.kr();
+
+	env = EnvGen.ar(Env.perc(atk, rel), doneAction: 2);
+	sig = PlayBuf.ar(1, buf, rate);
+	sig = Pan2.ar(sig, pan, amp*env);
+
+	Out.ar(0, sig);
+}).add;
+
 SynthDef.new( \samp, {
 	arg buf=0, rate=1, spos=0, loop=0,
 	atk=0, sus=0.2, rel=0.2,

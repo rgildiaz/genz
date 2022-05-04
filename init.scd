@@ -4,7 +4,6 @@
 s.waitForBoot({
 	t = TempoClock.new(60/60).permanent_(false);
 
-	// Set a seed I like
 	"\n\nthisThread.randData: %\n\n".format(thisThread.randData).postln;
 
 	s.sync;
