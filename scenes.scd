@@ -1,4 +1,5 @@
 // scenes
+
 (
 p = Routine.new({
 	var currentChord = Pdefn(\chords).asStream.value().choose();
@@ -145,7 +146,7 @@ p = Routine.new({
 			}
 		};
 
-		100.do(func);
+		200.do(func);
 });
 
 // folley
@@ -168,7 +169,7 @@ n = Routine.new({
 					\pan,	rrand(-1, 1),
 				]);
 
-				rrand(0.0, 6).yield;
+				rrand(0.01, 6).yield;
 			});
 		},
 		{ "Not Sampling".postln; }

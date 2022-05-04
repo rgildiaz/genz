@@ -5,10 +5,8 @@
 * main wrapper function for sound events.
 */
 ~play = {
-	~tempoStart.value();
-
 	~total_section_count.do({ |i|
-		"\n-----\nSection Number: %".format(i).postln;
+		"Section Number: %".format(i).postln;
 
 		p.play(t);
 		n.play(t);
@@ -78,9 +76,6 @@
 	)
 };
 
-~tempoStart = {
-	t = TempoClock.new(60/60).permanent_(false);
-};
 
 ~changeTonality = {
 	var baseCh = Array.rand(5, -5.0, 12).sort.postln;
