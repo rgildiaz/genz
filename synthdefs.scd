@@ -1,6 +1,30 @@
 // synthdefs
 
 (
+SynthDef.new( \white, {
+	var sig, env,
+	atk, rel, sus, freq, pan, amp;
+
+	atk = \atk.kr(0.01);
+	rel = \rel.kr(0.01);
+	sus = \sus.kr(1);
+	freq = \freq.kr(440);
+	pan = \pan.kr(0);
+	amp = \amp.kr(1);
+
+	env = EnvGen.ar(Env(
+		[0, 1, 1, 0],
+		[atk, sus, rel]
+	), doneAction: 2
+	);
+
+	sig = WhiteNoise.ar(amp);
+	sig = BPF.ar(sig, freq, 0.9);
+	sig = Pan2.ar(sig, pan, env);
+
+	Out.ar(0, sig);
+}).add;
+
 SynthDef.new( \sin, {
 	var sig, env,
 	atk, rel, freq, pan, amp;
@@ -172,11 +196,11 @@ SynthDef.new( \shimmer, {
 		i * rrand(0.6, 1);
 	});
 
-	randtrans	= Rand(0, atk/2);
+	randtrans = Rand(0, atk/2);
 	atk = atk - randtrans;
 	rel = rel + randtrans;
 
-	env 		= EnvGen.ar(
+	env = EnvGen.ar(
 		Env.new(
 			[0.001, 1, 0.001],
 			[atk, rel],
@@ -185,7 +209,7 @@ SynthDef.new( \shimmer, {
 		doneAction: 2
 	);
 
-	fmenv 	= EnvGen.ar(
+	fmenv = EnvGen.ar(
 		Env.new(
 			[rrand(0.2, 0.5), 1, 0],
 			[atk, rel],
@@ -193,19 +217,19 @@ SynthDef.new( \shimmer, {
 		),
 	);
 
-	fmamt 	= EnvGen.ar(
+	fmamt = EnvGen.ar(
 		Env.new(
-			[0.001, rrand(0.005, 0.007), 0.001],
+			[0.001, rrand(0.005, 0.007)/2, 0.001],
 			[atk, rel],
 			'exp'
 		),
 	);
 
-	fm 		= SinOsc.ar(rand(6.0, 10.0)*fmenv, mul: fmamt).unipolar;
+	fm = SinOsc.ar(rand(6.0, 10.0)*fmenv, mul: fmamt).unipolar;
 
-	freq		= freq * fm;
+	freq = freq * fm;
 
-	sig 		=
+	sig =
 	SinOsc.ar(freq, rrand(0,pi), spec[0]) +
 	SinOsc.ar(freq*2*(1 + rrand(0, detune)), rrand(0, pi), spec[1]) +
 	SinOsc.ar(freq*3*(1 + rrand(0, detune)), rrand(0, pi), spec[2]) +

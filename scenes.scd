@@ -124,21 +124,44 @@
 	1000.do(func);
 });
 
+~rhythm_list = [\sin, \playBuf, \choruSin, \white];
+
 ~rhythm = Routine.new({
 	var chord = Pdefn(\chords).asStream.value().choose + ~root + 12;
+
 	Pbindef( \sin,
 		\instrument, \sin,
-		\dur, Pwrand([1/8, 1/4], [5, 1].normalizeSum, inf),
-		\freq, Prand(chord.midicps, inf),
-		\rel, Pexprand(0.001, 3)
-	);
+		\dur, Pwrand([1/8, 1/4, Rest(1/8)], [5, 1, 3].normalizeSum, inf),
+		\freq, Prand((chord +.x [0, 12]).midicps, inf),
+		\rel, Pexprand(0.005, 2),
+		\amp, Pwhite(0.25, 0.75) * ~ampScale,
+		\pan, Pwhite(-0.5, 0.5)
+	).play;
 
 	Pbindef( \playBuf,
 		\instrument, \playBuf,
-		\dur, Pwrand([1/8, 1/4], [5, 1].normalizeSum, inf),
-		\buf, Prand(b.choose, inf),
-		\rel, Pexprand(0.002, 3),
-		\foo, Pkey(\buf).postln
+		\dur, Pwrand([1/8, 1/4, Rest(1/8), Rest(1/4)], [5, 1, 3, 2].normalizeSum, inf),
+		\buf, Prand(b[\k], inf),
+		\rel, Pexprand(0.2, 3),
+		\amp, Pwhite(1, 2) * ~ampScale,
+		\pan, Pwhite(-1.0, 1.0)
+	).play;
+
+	Pbindef( \choruSin,
+		\instrument, \choruSin,
+		\dur, Pwrand([4, 2, 1], [5, 3, 1].normalizeSum, inf),
+		\freq, Prand((chord - 12).midicps, inf),
+		\amp, Pwhite(0.25, 0.5) * ~ampScale,
+		\pan, Pwhite(-1.0, 1.0)
+	).play;
+
+	Pbindef( \white,
+		\instrument, \white,
+		\dur, Pwrand([4, 3, 8, 1], [5, 3, 1, 2].normalizeSum, inf),
+		\freq, Prand((chord + 12).midicps, inf),
+		\amp, Pwhite(0.05, 0.1) * ~ampScale,
+		\pan, Pwhite(-1.0, 1.0),
+		\sus, Pexprand(0.05, 0.5)
 	).play;
 });
 
@@ -147,7 +170,7 @@
 
 
 // A list of all available scenes.
-~scenes_list = [~rhythm];
+~scenes_list = [~rhythm, ~soundscape].postln;
 
 /*
 * A list of currently active scenes.
@@ -177,7 +200,7 @@
 */
 ~resetScenes = {
 	~current_scenes.do({|i| i.reset});
-	Pbindef(\sin).stop;
+	~rhythm_list.do({|i| Pbindef(i).stop});
 };
 
 /*
@@ -185,6 +208,6 @@
 */
 ~stopScenes = {
 	~current_scenes.do({|i| i.stop});
-	Pbindef(\sin).stop;
+	~rhythm_list.do({|i| Pbindef(i).stop});
 };
 )
