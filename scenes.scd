@@ -1,6 +1,27 @@
 // scenes
 
 (
+~rhythmic = Routine.new({
+
+});
+
+~melodic = Routine.new({
+});
+
+~soundscape = Routine.new({
+	var chords = Pdefn(\chords).asStream.value();
+	var variation = rrand(0, 1);
+	// this is 1000.do and not inf.do to avoid accidental infinite loops.
+	1000.do({
+
+	});
+});
+
+~scenes_list = [~soundscape];
+)
+
+
+(
 p = Routine.new({
 	var currentChord = Pdefn(\chords).asStream.value().choose();
 	var func = {};
@@ -149,7 +170,7 @@ p = Routine.new({
 		200.do(func);
 });
 
-// folley
+// foley
 n = Routine.new({
 	var soundSet = [\b, \f].choose;
 

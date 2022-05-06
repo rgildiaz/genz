@@ -2,8 +2,9 @@
 
 (
 s.waitForBoot({
-	t = TempoClock.new(60/60).permanent_(false);
+	t = TempoClock.new(~tempo/60).permanent_(false);
 
+	// post the randseed to save for later
 	"\n\nthisThread.randData: %\n\n".format(thisThread.randData).postln;
 
 	s.sync;
@@ -11,25 +12,14 @@ s.waitForBoot({
 	"settings.scd".loadRelative;
 	"synthdefs.scd".loadRelative;
 	"functions.scd".loadRelative;
-	"buffers.scd".loadRelative;
 	"patterns.scd".loadRelative;
-
-	s.sync;
-
 	"scenes.scd".loadRelative;
 
-	~makeBuffers.value();
-
 	s.sync;
 
-	r = Routine.new({
-		~recordStart.value();
-
-		s.sync;
-
-		~play.value();
-		~recordEnd.value();
-
-	}).play(t);
+	~makeBuffers.value();
+	~recordStart.value();
+	~play.value();
+	~recordEnd.value();
 });
 )

@@ -1,23 +1,24 @@
 // functions
 
 (
+
+/// Basic functionality ///
+
 /*
 * main wrapper function for sound events.
+* ~play
 */
 ~play = {
 	~total_section_count.do({ |i|
 		"Section Number: %".format(i).postln;
 
-		p.play(t);
-		n.play(t);
-		rrand(60, 120).yield;
+		~chooseScene.value();
+		~chooseSceneLength.yield;
 		~changeTonality.value();
-		p.reset;
-		n.reset;
+		~resetScenes.value();
 	});
 
-	p.stop;
-	n.stop;
+	~stopScenes.value();
 };
 
 /*
@@ -76,9 +77,13 @@
 	)
 };
 
-
+/*
+* Decides a new root and three new chords that use that root. It also decides how loud the next section will be using by deciding on an ~ampScale between 0.25 and 1.
+* Root is stored in ~root
+* Chords are stored in ~chords and in Pdefn(\chords)
+*/
 ~changeTonality = {
-	var baseCh = Array.rand(5, -5.0, 12).sort.postln;
+	var baseCh = Array.rand(rrand(3, 7), -5.0, 12).sort;
 	~chords = [
 		baseCh.nearestInScale(Scale.choose.degrees),
 		baseCh.nearestInScale(Scale.choose.degrees),
@@ -88,7 +93,127 @@
 
 	~root = rrand(45, 50);
 	~ampScale = rrand(0.25, 1);
+	"Root: %".format(~root).postln;;
 	"AmpScale: %".format(~ampScale).postln;
 };
 ~changeTonality.value();
+
+
+
+
+//// Scenes ////
+
+/*
+* A list of currently active scenes.
+*/
+~current_scenes = [];
+
+/*
+* Chooses a scene from the ~scenes_list (located in scenes.scd)
+* ~scenes_list is a list of routines, each representing a different routine.
+*/
+~chooseScene = {
+	var scene;
+	scene = ~scenes_list.choose;
+	~current_scenes = ~current_scenes ++ [scene];
+	scene.play(t);
+};
+
+/*
+* Chooses the length of each scene based on the ~section_length setting.
+*/
+~chooseSceneLength = {
+	rrand(~section_length[0], ~section_length[1]);
+};
+
+/*
+* Reset all currently active scenes.
+*/
+~resetScenes = {
+	for (0, ~current_scenes.size-1, {
+		arg i;
+		~current_scenes[i].stop;
+	})
+};
+
+/*
+* Stop  all currently active scenes.
+*/
+~stopScenes = {
+	for (0, ~current_scenes.size-1, {
+		arg i;
+		~current_scenes[i].stop;
+	})
+};
+
+
+
+
+////  Motives ////
+
+// !!!!!!!!!!!!!!!!!!!!!!!
+// !!! NOT IMPLEMENTED !!!
+// !!!!!!!!!!!!!!!!!!!!!!!
+
+/*
+* A list of currently active motives. Modified and accessed by ~chooseMotif.
+*/
+~current_motives = [];
+
+/*
+* Tracks and chooses motives each time a new scene is chosen.
+* Motives are stored as arrays []
+* Returns one of the  motifs from the motif list.
+*/
+~chooseMotif = {
+	// If at max number of motives, chance to drop one
+	if ( ~current_motives.size >= ~max_motives,
+		{
+			if ( [false, true].wchoose(~motif_retention_chance, 1 - ~motif_retention_chance),
+				{
+					~current_motives.removeAt(rrand(~current_motives.size/2, ~current_motives.size).floor);
+				}
+			);
+		}
+
+	);
+
+	// add a motif if there isn't one in the list
+	if ( ~current_motives.size == 0,
+		{ ~newMotif.value() },
+		{
+			// If there are between 1 and ~max_motives in the list, there is a chance to create a new one.
+			if ( ~current_motives.size < ~max_motives,
+				{
+					if ( [true, false].wchoose(~motif_create_chance, 1 - ~motif_create_chance),
+						{
+							~newMotif.value()
+						}
+					);
+				}
+			);
+		}
+	);
+
+	~current_motives.choose;
+};
+
+/*
+* Generates a new motif.
+* motives are created as arrays of midi keynums
+*/
+~newMotif = {
+	var motif, motif_functions;
+
+	motif_functions = [
+		{
+			arg i;
+
+		},
+		{}
+	];
+
+	motif = Array.fill(rrand(2, 5), motif_functions.choose);
+	~current_motives = ~current_motives ++ [motif];
+};
 )

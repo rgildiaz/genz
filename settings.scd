@@ -2,6 +2,12 @@
 
 (
 /*
+* Tempo in bpm.
+* num
+*/
+~tempo = 60;
+
+/*
 * Enable recording.
 * boolean
 */
@@ -18,4 +24,14 @@
 * int
 */
 ~total_section_count = rrand(5,7);
+
+/*
+* The length of each section.
+* array, [minimum, maximum]
+*/
+~section_length = [60, 120];
+
+~motif_rentention_chance = 0.5;
+
+~max_motives = 3;
 )
