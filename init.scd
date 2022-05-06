@@ -1,3 +1,8 @@
+// smoother transitions - xfade?
+// changes during scenes
+// More variation in rhythm?
+// Clean/rewrite soundscape scene
+
 (
 "settings.scd".loadRelative;
 

@@ -31,6 +31,8 @@
 */
 ~section_length = [60, 120];
 
+
+// not implemeted //
 ~motif_rentention_chance = 0.5;
 
 ~max_motives = 3;
