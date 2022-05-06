@@ -8,6 +8,4 @@
 	\buf, Prand(b.choose, inf),
 	\pan, Pwhite(-1.0, 1.0, inf)
 );
-
-~r1.play();
 )

@@ -1,19 +1,17 @@
-// init
-
 (
+"settings.scd".loadRelative;
+
 s.waitForBoot({
 	t = TempoClock.new(~tempo/60).permanent_(false);
 
 	// post the randseed to save for later
-	"\n\nthisThread.randData: %\n\n".format(thisThread.randData).postln;
+	"\n\nthisThread.randData: %\n".format(thisThread.randData).postln;
 
 	s.sync;
 
-	"settings.scd".loadRelative;
 	"synthdefs.scd".loadRelative;
-	"functions.scd".loadRelative;
-	"patterns.scd".loadRelative;
 	"scenes.scd".loadRelative;
+	"functions.scd".loadRelative;
 
 	s.sync;
 

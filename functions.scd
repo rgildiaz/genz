@@ -10,10 +10,10 @@
 */
 ~play = {
 	~total_section_count.do({ |i|
-		"Section Number: %".format(i).postln;
+		"Section Number: %\n".format(i).postln;
 
 		~chooseScene.value();
-		~chooseSceneLength.yield;
+		~chooseSceneLength.value().yield;
 		~changeTonality.value();
 		~resetScenes.value();
 	});
@@ -93,60 +93,10 @@
 
 	~root = rrand(45, 50);
 	~ampScale = rrand(0.25, 1);
-	"Root: %".format(~root).postln;;
+	"Root: %".format(~root).postln;
 	"AmpScale: %".format(~ampScale).postln;
 };
 ~changeTonality.value();
-
-
-
-
-//// Scenes ////
-
-/*
-* A list of currently active scenes.
-*/
-~current_scenes = [];
-
-/*
-* Chooses a scene from the ~scenes_list (located in scenes.scd)
-* ~scenes_list is a list of routines, each representing a different routine.
-*/
-~chooseScene = {
-	var scene;
-	scene = ~scenes_list.choose;
-	~current_scenes = ~current_scenes ++ [scene];
-	scene.play(t);
-};
-
-/*
-* Chooses the length of each scene based on the ~section_length setting.
-*/
-~chooseSceneLength = {
-	rrand(~section_length[0], ~section_length[1]);
-};
-
-/*
-* Reset all currently active scenes.
-*/
-~resetScenes = {
-	for (0, ~current_scenes.size-1, {
-		arg i;
-		~current_scenes[i].stop;
-	})
-};
-
-/*
-* Stop  all currently active scenes.
-*/
-~stopScenes = {
-	for (0, ~current_scenes.size-1, {
-		arg i;
-		~current_scenes[i].stop;
-	})
-};
-
-
 
 
 ////  Motives ////

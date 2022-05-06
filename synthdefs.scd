@@ -1,7 +1,5 @@
 // synthdefs
 
-
-
 (
 SynthDef.new( \sin, {
 	var sig, env,
@@ -22,7 +20,8 @@ SynthDef.new( \sin, {
 
 SynthDef.new( \playBuf, {
 	var sig, env,
-	atk, rel, rate, pan, amp, buf;
+	pan, amp, atk, rel,
+	rate, spos, buf;
 
 	atk = \atk.kr(0.01);
 	rel = \rel.kr(0.5);
@@ -30,9 +29,10 @@ SynthDef.new( \playBuf, {
 	pan = \pan.kr(0);
 	amp = \amp.kr(0.5);
 	buf = \buf.kr();
+	spos = \spos.kr(0);
 
 	env = EnvGen.ar(Env.perc(atk, rel), doneAction: 2);
-	sig = PlayBuf.ar(1, buf, rate);
+	sig = PlayBuf.ar(1, buf, rate, startPos: spos);
 	sig = Pan2.ar(sig, pan, amp*env);
 
 	Out.ar(0, sig);
