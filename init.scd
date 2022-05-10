@@ -12,9 +12,9 @@ s.waitForBoot({
 	s.sync;
 
 	"synthdefs.scd".loadRelative;
-	"patterns.scd".loadRelative;
 	"scenes.scd".loadRelative;
 	"functions.scd".loadRelative;
+	"patterns.scd".loadRelative;
 
 	s.sync;
 
@@ -25,4 +25,4 @@ s.waitForBoot({
 	~recordEnd.value();
 	"end".postln;
 });
-)
+) 

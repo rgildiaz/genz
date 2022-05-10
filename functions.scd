@@ -19,7 +19,8 @@
 			\amp, ~chooseAmp.value
 		]);
 		~events = ~events ++ [event];
-	})
+	});
+	~events;
 };
 
 /*
@@ -27,7 +28,7 @@
 */
 ~play = {
 	~events.do({ |i|
-		"Section Number: %\n".format(i).postln;
+		"%".format(i).postln;
 		~chooseMotif.value();
 		~playScene.value(i[\index]);
 		~stopPatterns.value();
@@ -60,15 +61,15 @@
 ~recordStart = {
 	if ( ~record_enable,
 		{
-			var pathFound = false;
+			var pathFound = true;
 			var pathNum = 0;
 			var path = PathName(thisProcess.nowExecutingPath).parentPath;
 
-			while( pathFound == false,
+			while( pathNotFound,
 				{
 					if ( File.exists(path ++ "%_%.wav".format(~record_name, pathNum)),
 						{ pathNum = pathNum + 1; },
-						{ pathFound = true; }
+						{ pathFound = false; }
 					);
 				}
 			);
@@ -115,11 +116,11 @@
 	rrand(0.25, 1);
 };
 
-// returns a 6 note chord. called by setup. root is always the first pitch.
+// returns a 7 note chord. called by setup. root is always the first pitch.
 ~chooseChord = {
 	var chord = Array.rand(6, 1, 12).sort;
 	var scale = Scale.choose.degrees;
-	[~root_range] ++ chord.nearestInScale(scale);
+	[~root_range] ++ (chord + ~root_range).nearestInScale(scale);
 };
 
 
@@ -179,14 +180,16 @@
 	motif_functions = [
 		{
 			arg i;
-			i % 6
+			i % 7
 		},
 		{
-			rrand(0, 5)
+			rrand(0, 6)
 		}
 	];
 
 	motif = Array.fill(rrand(2, 5), motif_functions.choose);
 	~current_motives = ~current_motives ++ [motif];
 };
+
+~newMotif.value()
 )

@@ -11,7 +11,7 @@
 * Enable recording.
 * boolean
 */
-~record_enable = false;
+~record_enable = true;
 
 /*
 * Recording name.
