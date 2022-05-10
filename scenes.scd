@@ -8,122 +8,26 @@
 ~patterns_list = ~rhythm_list ++ ~soundscape_list;
 
 ~soundscape = {
-	var chord = (Pdefn(\chords).asStream.value.choose + ~root) +.x [-12, 0, 12];
+	Pbindef( \shimmer ).play;
 
-	Pbindef( \shimmer,
-		\instrument, \shimmer,
-		\dur, Prand([
-			Prand([1, 4], Pwhite(1, 4)),
-			Prand((1..5), Pwhite(1, 4)),
-			Prand([
-				Pexprand(0.25, 5, Pwhite(1, 5)).round(0.25),
-				Pwhite(0.5, 4, Pwhite(2, 3)).round(0.25)
-			], Pwhite(1, 10))
-		], inf),
-		\freq, Prand([
-			Pseq(chord[~current_motives.choose] + 12, 1),
-			Prand(chord, Pwhite(1, 4))
-		], inf).midicps,
-		\amp, Pwhite(0.5, 1) * ~ampScale,
-		\atk, Prand([
-			Pwhite(5.0, 7.0, Pwhite(1, 100)),
-			Pexprand(0.03, 4, Pwhite(1, 100))
-		], inf),
-		\rel, Prand([
-			Pwhite(5.0, 7.0, Pwhite(1, 100)),
-			Pexprand(5, 10, Pwhite(1, 100))
-		], inf),
-		\pan, Pwhite(-1.0, 1.0)
-	).play;
+	Pbindef( \choruSin ).play;
 
-	Pbindef( \choruSin,
-		\instrument, \choruSin,
-		\dur, Prand([
-			Prand([1, 4], Pwhite(1, 4)),
-			Prand((1..5), Pwhite(1, 9)),
-			Prand([
-				Pexprand(0.25, 5, Pwhite(4, 7)).round(0.25),
-				Pwhite(0.5, 4, Pwhite(4, 9)).round(0.25)
-			], Pwhite(1, 10))
-		], inf),
-		\freq, (Prand(chord, inf)).midicps,
-		\amp, Pwhite(0.25, 0.5) * ~ampScale,
-		\atk, Prand([
-			Pwhite(5.0, 7.0, Pwhite(1, 100)),
-			Pexprand(0.03, 4, Pwhite(1, 100))
-		], inf),
-		\rel, Prand([
-			Pwhite(5.0, 7.0, Pwhite(1, 100)),
-			Pexprand(0.03, 4, Pwhite(1, 100))
-		], inf),
-		\pan, Pwhite(-1.0, 1.0)
-	).play;
-
-	Pbindef( \choruSin2,
-		\instrument, \choruSin,
-		\dur, Prand([
-			Prand([1, 4], Pwhite(1, 4)),
-			Prand((1..2), Pwhite(1, 9)),
-			Prand([
-				Pexprand(1.0, 2, Pwhite(4, 7)).round(0.25),
-				Pwhite(0.5, 3, Pwhite(4, 9)).round(0.25)
-			], Pwhite(1, 10))
-		], inf),
-		\freq, (Prand(chord, inf) + 12).midicps,
-		\amp, Pwhite(0.25, 0.5) * ~ampScale,
-		\atk, Pwhite(5.0, 7.0, Pwhite(1, 100), inf),
-		\rel, Pwhite(5.0, 7.0, Pwhite(1, 100), inf),
-		\pan, Pwhite(-1.0, 1.0)
-	).play;
+	Pbindef( \choruSin2	).play;
 };
 
 
 ~rhythm = {
-	var chord = Pdefn(\chords).asStream.value.choose + ~root;
+	Pbindef( \sin ).play;
 
-	Pbindef( \sin,
-		\instrument, \sin,
-		\dur, Pwrand([1/8, 1/4, Rest(1/8)], [5, 1, 3].normalizeSum, inf),
-		\freq, Prand((chord +.x [0, 12]).midicps, inf),
-		\rel, Pexprand(0.005, 2),
-		\amp, Pwhite(0.25, 0.5) * ~ampScale,
-		\pan, Pwhite(-0.5, 0.5)
-	).play;
+	Pbindef( \sin2 ).play;
 
-	Pbindef( \sin2,
-		\instrument, \sin,
-		\dur, Pwrand([1/8, 1/4, Rest(1/8)], [5, 1, 3].normalizeSum, inf),
-		\freq, Prand((chord +.x [0, -12]).midicps, inf),
-		\rel, Pexprand(0.005, 2),
-		\amp, Pwhite(0.25, 0.5) * ~ampScale,
-		\pan, Pwhite(-0.5, 0.5)
-	).play;
+	Pbindef( \playBuf ).play;
 
-	Pbindef( \playBuf,
-		\instrument, \playBuf,
-		\dur, Pwrand([1/8, 1/4, Rest(1/8), Rest(1/4) , Rest(1)], [5, 1, 3, 2, 4].normalizeSum, inf),
-		\buf, Prand(b[\k], inf),
-		\rel, Pexprand(0.2, 3),
-		\amp, Pwhite(1, 2) * ~ampScale,
-		\pan, Pwhite(-1.0, 1.0)
-	).play;
+	Pbindef( \guitPlayBuf ).play;
 
-	Pbindef( \rchoruSin,
-		\instrument, \choruSin,
-		\dur, Pwrand([4, 2, 1], [5, 3, 1].normalizeSum, inf),
-		\freq, Prand((chord - 12).midicps, inf),
-		\amp, Pwhite(0.25, 0.5) * ~ampScale,
-		\pan, Pwhite(-1.0, 1.0)
-	).play;
+	Pbindef( \rchoruSin	).play;
 
-	Pbindef( \white,
-		\instrument, \white,
-		\dur, Pwrand([4, 3, 8, 1], [5, 3, 1, 2].normalizeSum, inf),
-		\freq, Prand((chord + 12).midicps, inf),
-		\amp, Pwhite(0.05, 0.1) * ~ampScale,
-		\pan, Pwhite(-1.0, 1.0),
-		\sus, Pexprand(0.05, 0.5)
-	).play;
+	Pbindef( \white	).play;
 };
 
 
@@ -159,7 +63,7 @@
 ~playScene = {
 	arg i;
 	var scene, length, chord, amp,
-	markers;
+	markers, pat;
 
 	e = ~events[i];
 	scene = ~scenes_list[e[\scene]];	// \scene is either 1 or 0, so it can be an index.
@@ -168,9 +72,8 @@
 	amp = e[\amp];
 
 	// define markers within section length
-	markers = Array.fill(3, { |i|
-		rrand(1.0, length)
-	}).sort;
+	markers = Array.fill(3, { rrand(1.0, length) }).sort.normalizeSum;
+	markers = markers * length;
 
 	// start playing the scene
 	Routine(scene).play(t);
@@ -181,14 +84,51 @@
 
 	// then make changes at each marker
 	markers.do({ |i|
-		i.yield;			// wait until at marker
+		var func;
+		i.postln;
+		i.yield;
 
+		// chance to add/drop instruments
+		2.do({
+			switch( rrand(0,3),
+				0, func = ~dropInstrument,
+				1, func = ~addInstrument
+			);
+		});
+		func.value;
+
+		/*// chance to change some pbindefs
+		pat = ~current_patterns.choose.postln;
+		Pbindef(pat,
+			\amp, Env.new(
+				[rrand(0.1, 0.75), rrand(0.5, 0.9), rrand(0.0, 1)],
+				[rrand(1.0, 10.0), rrand(1.0, 10.0)],
+				'exp').asPseg,
+			\dur, Env.new(
+				[rrand(0.25, 4), rrand(0.25, 5), rrand(0.25, 10)],
+				[rrand(1.0, 10.0), rrand(1.0, 10.0)],
+				'exp').asPseg.round(0.25),
+		);*/
 	});
 
 	// on the last marker, start transition
 
 	// wait the last amount
 	(length - markers[2]).yield;
+};
+
+~dropInstrument = {
+	var pat = rrand(0, ~current_patterns.size - 1);
+	"drop %".format(~current_patterns[pat]).postln;
+	Pbindef(~current_patterns[pat]).stop;
+	~current_patterns.removeAt(pat);
+};
+
+~addInstrument = {
+	var pat = ~patterns_list.choose;
+	Pbindef(pat).play(t);
+	"add %".format(pat).postln;
+	~current_patterns = ~current_patterns ++ [pat];
 };
 
 /*

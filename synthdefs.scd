@@ -10,7 +10,7 @@ SynthDef.new( \white, {
 	sus = \sus.kr(1);
 	freq = \freq.kr(440);
 	pan = \pan.kr(0);
-	amp = \amp.kr(1);
+	amp = \amp.kr(0.25);
 
 	env = EnvGen.ar(Env(
 		[0, 1, 1, 0],
@@ -18,7 +18,7 @@ SynthDef.new( \white, {
 	), doneAction: 2
 	);
 
-	sig = WhiteNoise.ar(amp);
+	sig = WhiteNoise.ar(amp * 0.25);
 	sig = BPF.ar(sig, freq, 0.9);
 	sig = Pan2.ar(sig, pan, env);
 
@@ -51,7 +51,7 @@ SynthDef.new( \sinsaw, {
 	freq = \freq.kr(440);
 	pan = \pan.kr(0);
 	amp = \amp.kr(0.5);
-	mix = \mix.kr(0.5);
+	mix = \mix.kr(0.0);
 
 	env = EnvGen.ar(Env.perc(atk, rel), doneAction: 2);
 	sig = SinOsc.ar(freq) * (1-mix);

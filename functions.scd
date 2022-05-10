@@ -9,7 +9,7 @@
 */
 ~setup = {
 	// ~events is a list of dictionaries which represent major sections of the piece
-	~events = []
+	~events = [];
 	~total_section_count.do({ |i|
 		var event = Dictionary.newFrom([
 			\index, i,
