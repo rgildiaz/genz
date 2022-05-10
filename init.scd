@@ -19,6 +19,7 @@ s.waitForBoot({
 
 	~makeBuffers.value();
 	~recordStart.value();
+	~setup.value();
 	~play.value();
 	~recordEnd.value();
 });

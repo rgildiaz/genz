@@ -3,18 +3,34 @@
 (
 /// Basic functionality ///
 
+
+/*
+* makes a plan
+*/
+~setup = {
+	// ~events is a list of dictionaries which represent major sections of the piece
+	~events = []
+	~total_section_count.do({ |i|
+		var event = Dictionary.newFrom([
+			\index, i,
+			\scene, (0..1).choose,					// 0 = soundscape, 1 = rhythm
+			\length, ~chooseSceneLength.value,
+			\chord, ~chooseChord.value,
+			\amp, ~chooseAmp.value
+		]);
+		~events = ~events ++ [event];
+	})
+};
+
 /*
 * main wrapper function for sound events.
-* ~play
 */
 ~play = {
-	~total_section_count.do({ |i|
+	~events.do({ |i|
 		"Section Number: %\n".format(i).postln;
 		~chooseMotif.value();
-		~chooseScene.value();
-		~chooseSceneLength.value().yield;
-		~changeTonality.value();
-		~stopScenes.value();
+		~playScene.value(i[\index]);
+		~stopPatterns.value();
 	});
 };
 
@@ -75,7 +91,7 @@
 };
 
 /*
-* Decides a new root and three new chords that use that root. It also decides how loud the next section will be using by deciding on an ~ampScale between 0.25 and 1.
+* Decides a new root and chord. It also decides how loud the next section will be using by deciding on an ~ampScale between 0.25 and 1.
 * Root is stored in ~root
 * Chords are stored in ~chords and in Pdefn(\chords)
 */
@@ -90,13 +106,21 @@
 
 	~root = rrand(45, 50);
 	~ampScale = rrand(0.25, 1);
-	"Root: %".format(~root).postln;
-	"AmpScale: %".format(~ampScale).postln;
 };
 ~changeTonality.value();
 
 
+// returns an ampScale. called by setup.
+~chooseAmp = {
+	rrand(0.25, 1);
+};
 
+// returns a 6 note chord. called by setup. root is always the first pitch.
+~chooseChord = {
+	var chord = Array.rand(6, 1, 12).sort;
+	var scale = Scale.choose.degrees;
+	[~root_range] ++ chord.nearestInScale(scale);
+};
 
 
 

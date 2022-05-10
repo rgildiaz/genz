@@ -1,9 +1,14 @@
 // scenes
 
 (
+~rhythm_list = [\sin, \sin2, \playBuf, \guitPlayBuf, \rchoruSin, \white];
+~soundscape_list = [\shimmer, \choruSin, \choruSin2];
+
+// A list of all available patterns.
+~patterns_list = ~rhythm_list ++ ~soundscape_list;
+
 ~soundscape = {
-	arg instruments;
-	var chord = Pdefn(\chords).asStream.value.choose + ~root;
+	var chord = (Pdefn(\chords).asStream.value.choose + ~root) +.x [-12, 0, 12];
 
 	Pbindef( \shimmer,
 		\instrument, \shimmer,
@@ -72,10 +77,9 @@
 	).play;
 };
 
-~rhythm_list = [\sin, \sin2, \playBuf, \rchoruSin, \white];
 
 ~rhythm = {
-	var chord = Pdefn(\chords).asStream.value.choose + ~root + 12;
+	var chord = Pdefn(\chords).asStream.value.choose + ~root;
 
 	Pbindef( \sin,
 		\instrument, \sin,
@@ -84,7 +88,7 @@
 		\rel, Pexprand(0.005, 2),
 		\amp, Pwhite(0.25, 0.5) * ~ampScale,
 		\pan, Pwhite(-0.5, 0.5)
-	);
+	).play;
 
 	Pbindef( \sin2,
 		\instrument, \sin,
@@ -93,7 +97,7 @@
 		\rel, Pexprand(0.005, 2),
 		\amp, Pwhite(0.25, 0.5) * ~ampScale,
 		\pan, Pwhite(-0.5, 0.5)
-	);
+	).play;
 
 	Pbindef( \playBuf,
 		\instrument, \playBuf,
@@ -102,7 +106,7 @@
 		\rel, Pexprand(0.2, 3),
 		\amp, Pwhite(1, 2) * ~ampScale,
 		\pan, Pwhite(-1.0, 1.0)
-	);
+	).play;
 
 	Pbindef( \rchoruSin,
 		\instrument, \choruSin,
@@ -110,7 +114,7 @@
 		\freq, Prand((chord - 12).midicps, inf),
 		\amp, Pwhite(0.25, 0.5) * ~ampScale,
 		\pan, Pwhite(-1.0, 1.0)
-	);
+	).play;
 
 	Pbindef( \white,
 		\instrument, \white,
@@ -119,17 +123,19 @@
 		\amp, Pwhite(0.05, 0.1) * ~ampScale,
 		\pan, Pwhite(-1.0, 1.0),
 		\sus, Pexprand(0.05, 0.5)
-	);
+	).play;
 };
 
 
 // A list of all available scenes.
-~scenes_list = [~soundscape].postln;
+~scenes_list = [~soundscape, ~rhythm];
 
 /*
 * A list of currently active scenes.
 */
 ~current_scenes = [];
+
+~current_patterns = [];
 
 /*
 * Chooses a scene from the ~scenes_list (located in scenes.scd)
@@ -149,11 +155,47 @@
 	rrand(~section_length[0], ~section_length[1]);
 };
 
+
+~playScene = {
+	arg i;
+	var scene, length, chord, amp,
+	markers;
+
+	e = ~events[i];
+	scene = ~scenes_list[e[\scene]];	// \scene is either 1 or 0, so it can be an index.
+	length = e[\length];
+	chord = e[\chord];
+	amp = e[\amp];
+
+	// define markers within section length
+	markers = Array.fill(3, { |i|
+		rrand(1.0, length)
+	}).sort;
+
+	// start playing the scene
+	Routine(scene).play(t);
+	switch (e[\scene],
+		0, ~current_patterns = ~current_patterns ++ ~soundscape_list,
+		1, ~current_patterns = ~current_patterns ++ ~rhythm_list
+	);
+
+	// then make changes at each marker
+	markers.do({ |i|
+		i.yield;			// wait until at marker
+
+	});
+
+	// on the last marker, start transition
+
+	// wait the last amount
+	(length - markers[2]).yield;
+};
+
 /*
-* Stop  all currently active scenes.
+* Stop  all currently active patterns.
 */
-~stopScenes = {
-	~current_scenes.do({|i| i.stop});
-	~rhythm_list.do({|i| Pbindef(i).stop});
+~stopPatterns = {
+	~current_patterns.do({|i| Pbindef(i).stop});
+	~current_patterns = [];
 };
 )

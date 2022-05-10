@@ -36,4 +36,6 @@
 ~motif_rentention_chance = 0.5;
 
 ~max_motives = 3;
+
+~root_range = rrand(45, 50);
 )
