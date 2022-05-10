@@ -37,5 +37,5 @@
 
 ~max_motives = 3;
 
-~root_range = rrand(45, 50);
+~root_range = 46;
 )

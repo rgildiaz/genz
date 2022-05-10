@@ -63,7 +63,7 @@
 ~playScene = {
 	arg i;
 	var scene, length, chord, amp,
-	markers, pat;
+	markers, pat, next_e;
 
 	e = ~events[i];
 	scene = ~scenes_list[e[\scene]];	// \scene is either 1 or 0, so it can be an index.
@@ -100,18 +100,45 @@
 		/*// chance to change some pbindefs
 		pat = ~current_patterns.choose.postln;
 		Pbindef(pat,
-			\amp, Env.new(
-				[rrand(0.1, 0.75), rrand(0.5, 0.9), rrand(0.0, 1)],
-				[rrand(1.0, 10.0), rrand(1.0, 10.0)],
-				'exp').asPseg,
-			\dur, Env.new(
-				[rrand(0.25, 4), rrand(0.25, 5), rrand(0.25, 10)],
-				[rrand(1.0, 10.0), rrand(1.0, 10.0)],
-				'exp').asPseg.round(0.25),
+		\amp, Env.new(
+		[rrand(0.1, 0.75), rrand(0.5, 0.9), rrand(0.0, 1)],
+		[rrand(1.0, 10.0), rrand(1.0, 10.0)],
+		'exp').asPseg,
+		\dur, Env.new(
+		[rrand(0.25, 4), rrand(0.25, 5), rrand(0.25, 10)],
+		[rrand(1.0, 10.0), rrand(1.0, 10.0)],
+		'exp').asPseg.round(0.25),
 		);*/
 	});
 
+	next_e = ~events[i + 1];
+
 	// on the last marker, start transition
+	if (next_e.isNil, {/*next scene is nil*/}, {
+		if (e[\scene] == 0,
+			{ // scene is soundscape
+				if (next_e[\scene] == 0,
+					{ // next scene is soundscape
+
+					},
+					{ // next scene is rhythmic
+
+					}
+				)
+			},
+			{ // scene is rhythmic
+				if (next_e[\scene] == 0,
+					{ // next scene is soundscape
+
+					},
+					{ // next scene is rhythmic
+
+					}
+				)
+			}
+	)}
+	);
+
 
 	// wait the last amount
 	(length - markers[2]).yield;
