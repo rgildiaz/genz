@@ -42,6 +42,25 @@ SynthDef.new( \sin, {
 	Out.ar(0, sig);
 }).add;
 
+SynthDef.new( \sinsaw, {
+	var sig, env,
+	atk, rel, freq, pan, amp, mix;
+
+	atk = \atk.kr(0.01);
+	rel = \rel.kr(0.5);
+	freq = \freq.kr(440);
+	pan = \pan.kr(0);
+	amp = \amp.kr(0.5);
+	mix = \mix.kr(0.5);
+
+	env = EnvGen.ar(Env.perc(atk, rel), doneAction: 2);
+	sig = SinOsc.ar(freq) * (1-mix);
+	sig = sig + LPF.ar(Saw.ar(freq), freq*rrand(1.5, 3)) * mix;
+	sig = Pan2.ar(sig, pan, amp*env);
+
+	Out.ar(0, sig);
+}).add;
+
 SynthDef.new( \playBuf, {
 	var sig, env,
 	pan, amp, atk, rel,
@@ -196,7 +215,7 @@ SynthDef.new( \shimmer, {
 		i * rrand(0.6, 1);
 	});
 
-	randtrans = Rand(0, atk/2);
+	randtrans = rrand(0, atk/2);
 	atk = atk - randtrans;
 	rel = rel + randtrans;
 

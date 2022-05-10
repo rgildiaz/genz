@@ -1,7 +1,6 @@
 // functions
 
 (
-
 /// Basic functionality ///
 
 /*
@@ -11,14 +10,12 @@
 ~play = {
 	~total_section_count.do({ |i|
 		"Section Number: %\n".format(i).postln;
-
+		~chooseMotif.value();
 		~chooseScene.value();
 		~chooseSceneLength.value().yield;
 		~changeTonality.value();
-		~resetScenes.value();
+		~stopScenes.value();
 	});
-
-	~stopScenes.value();
 };
 
 /*
@@ -83,7 +80,7 @@
 * Chords are stored in ~chords and in Pdefn(\chords)
 */
 ~changeTonality = {
-	var baseCh = Array.rand(rrand(3, 7), -5.0, 12).sort;
+	var baseCh = Array.rand(6, -5.0, 12).sort;
 	~chords = [
 		baseCh.nearestInScale(Scale.choose.degrees),
 		baseCh.nearestInScale(Scale.choose.degrees),
@@ -104,10 +101,6 @@
 
 
 ////  Motives ////
-
-// !!!!!!!!!!!!!!!!!!!!!!!
-// !!! NOT IMPLEMENTED !!!
-// !!!!!!!!!!!!!!!!!!!!!!!
 
 /*
 * A list of currently active motives. Modified and accessed by ~chooseMotif.
@@ -139,7 +132,7 @@
 			// If there are between 1 and ~max_motives in the list, there is a chance to create a new one.
 			if ( ~current_motives.size < ~max_motives,
 				{
-					if ( [true, false].wchoose(~motif_create_chance, 1 - ~motif_create_chance),
+					if ( [true, false].wchoose([~motif_create_chance, 1 - ~motif_create_chance]),
 						{
 							~newMotif.value()
 						}
@@ -162,9 +155,11 @@
 	motif_functions = [
 		{
 			arg i;
-
+			i % 6
 		},
-		{}
+		{
+			rrand(0, 5)
+		}
 	];
 
 	motif = Array.fill(rrand(2, 5), motif_functions.choose);

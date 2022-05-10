@@ -1,12 +1,9 @@
-// smoother transitions - xfade?
-// changes during scenes
-// More variation in rhythm?
-// Clean/rewrite soundscape scene
-
 (
 "settings.scd".loadRelative;
 
 s.waitForBoot({
+	Buffer.freeAll;
+
 	t = TempoClock.new(~tempo/60).permanent_(false);
 
 	// post the randseed to save for later
