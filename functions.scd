@@ -61,7 +61,7 @@
 ~recordStart = {
 	if ( ~record_enable,
 		{
-			var pathFound = true;
+			var pathNotFound = true;
 			var pathNum = 0;
 			var path = PathName(thisProcess.nowExecutingPath).parentPath;
 
@@ -69,7 +69,7 @@
 				{
 					if ( File.exists(path ++ "%_%.wav".format(~record_name, pathNum)),
 						{ pathNum = pathNum + 1; },
-						{ pathFound = false; }
+						{ pathNotFound = false; }
 					);
 				}
 			);
@@ -106,14 +106,14 @@
 	Pdefn(\chords, ~chords);
 
 	~root = rrand(45, 50);
-	~ampScale = rrand(0.25, 1);
+	~ampScale = rrand(0.3, 1);
 };
 ~changeTonality.value();
 
 
 // returns an ampScale. called by setup.
 ~chooseAmp = {
-	rrand(0.25, 1);
+	rrand(0.4, 0.9);
 };
 
 // returns a 7 note chord. called by setup. root is always the first pitch.

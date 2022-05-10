@@ -9,9 +9,7 @@
 
 ~soundscape = {
 	Pbindef( \shimmer ).play;
-
 	Pbindef( \choruSin ).play;
-
 	Pbindef( \choruSin2	).play;
 };
 
@@ -136,7 +134,7 @@
 								[length - markers[2]],
 								\exp
 							).asPseg,
-							\freq, Prand(next_e[\chord].midicps, inf)
+							\freq, Prand(chord.midicps, inf)
 						).play;
 					},
 					{ // next scene is rhythmic
@@ -159,7 +157,7 @@
 								[length - markers[2]],
 								\exp
 							).asPseg,
-							\freq, Prand(next_e[\chord].midicps, inf)
+							\freq, Prand(chord.midicps, inf)
 						).play;
 
 						Pbind(
@@ -208,7 +206,7 @@
 								[length - markers[2]],
 								\exp
 							).asPseg,
-							\freq, [next_e[\chord].choose, next_e[\chord].choose, next_e[\chord].choose]
+							\freq, [chord.choose, chord.choose, chord.choose]
 						).play;
 
 						Pbindef( \sin,
@@ -290,6 +288,8 @@
 */
 ~stopPatterns = {
 	~patterns_list.do({|i| Pbindef(i).stop});
+	// return all patterns to default settings.
+	"patterns.scd".loadRelative;
 	~current_patterns = [];
 };
 )

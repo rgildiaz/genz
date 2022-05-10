@@ -23,7 +23,7 @@
 * Total number of sections to create.
 * int
 */
-~total_section_count = rrand(5,7);
+~total_section_count = rrand(4, 6);
 
 /*
 * The length of each section.
