@@ -25,4 +25,4 @@ s.waitForBoot({
 	~recordEnd.value();
 	"end".postln;
 });
-) 
+)

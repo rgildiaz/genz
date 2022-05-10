@@ -16,6 +16,7 @@
 
 ~rhythm = {
 	Pbindef( \sin ).play;
+	Pbindef( \guitPlayBuf ).play;
 
 	if ([true, false].choose, {
 		Pbindef( \sin2 ).play;
@@ -23,7 +24,6 @@
 
 	if ([true, false].choose, {
 		Pbindef( \playBuf ).play;
-		Pbindef( \guitPlayBuf ).play;
 		Pbindef( \white	).play;
 	});
 
@@ -209,7 +209,8 @@
 							\freq, [chord.choose, chord.choose, chord.choose]
 						).play;
 
-						Pbindef( \sin,
+						[\sin, \sin2, \playBuf, \guitPlayBuf].do({ |i|
+							Pbindef( i,
 							\amp, Env(
 								[0.25, 0.001],
 								[length - markers[2]],
@@ -221,41 +222,26 @@
 								\exp
 							).asPseg
 						).play;
-
-						Pbindef( \sin2,
-							\amp, Env(
-								[0.25, 0.001],
-								[length - markers[2]],
-								\exp
-							).asPseg * ~ampScale,
-							\dur, Env(
-								[0.5, 5],
-								[length - markers[2]],
-								\exp
-							).asPseg
-						).play;
+						});
 					},
 					{ // next scene is rhythmic
 						"to rhythm".postln;
 						Pbind(
-							\instrument, \sin,
-							\dur, Pwrand([1/8, 1/4, Rest(1/8)], [5, 1, 3].normalizeSum, inf),
+							\instrument, \playBuf,
+							\dur, 1/8,
+							\buf, Prand(b[\g], inf),
+							\rel, Pexprand(0.2, 3),
 							\amp, Env(
-								[0.01, 0.2],
+								[0.0001, 0.5],
 								[length - markers[2]],
 								\exp
 							).asPseg * ~ampScale,
-							\atk, Env(
-								[rrand(0.04, 0.1), rrand(0.2, 0.5)],
+							\pan, Pwhite(-0.5, 0.5),
+							\rate, Env(
+								[0.8, 1.5],
 								[length - markers[2]],
 								\exp
-							).asPseg,
-							\rel, Env(
-								[rrand(0.04, 0.1), rrand(0.2, 0.5)],
-								[length - markers[2]],
-								\exp
-							).asPseg,
-							\freq, Prand(next_e[\chord].midicps, inf)
+							).asPseg
 						).play;
 					}
 				)
@@ -271,16 +257,14 @@
 	var pat = rrand(0, ~current_patterns.size - 1);
 	Pbindef(~current_patterns[pat]).stop;
 	~current_patterns.removeAt(pat);
-	"drop %".format(~current_patterns[pat]).postln;
-	~current_patterns.postln;
+	"drop %".format(~current_patterns[pat]).postln;\
 };
 
 ~addInstrument = {
 	var pat = ~patterns_list.choose;
 	Pbindef(pat).play(t);
 	"add %".format(pat).postln;
-	~current_patterns = ~current_patterns ++ [pat];
-	~current_patterns.postln;
+	~current_patterns = ~current_patterns ++ [pat];\
 };
 
 /*
